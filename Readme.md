@@ -1,54 +1,64 @@
-﻿#  دفترچه تلفن (PhoneBook API)
+﻿# PhoneBook API (DDD + Clean Architecture) — .NET 8/9
 
-این پروژه یک پیاده‌سازی آزمایشی، سبک و حرفه‌ای از یک **دفترچه تلفن هوشمند** با استفاده از فریم‌ورک **.NET Core** است که طبق اصول طراحی دامنه-محور (DDD) و ساختار معماری پیازی/تمیز (Clean Architecture) طراحی و پیاده‌سازی شده است.
+این پروژه یک پیاده‌سازی سبک و قابل‌گسترش از **دفترچه تلفن (PhoneBook)** است که با رویکرد **Domain-Driven Design (DDD)** و **Clean Architecture** توسعه داده شده است. هدف پروژه نمایش طراحی صحیح لایه‌ها، مدل دامنه غنی، و مدیریت خطا به‌صورت استاندارد و قابل تست است.
 
----
-
-##  ساختار معماری پروژه (Architecture Overview)
-
-این پروژه از چهار لایه تفکیک‌شده تشکیل شده است تا حداکثر استقلال، نگهداری‌پذیری و قابلیت تست واحد فراهم شود:
-
-1. **لایه دامنه (PhoneBook.Domain):** 
-   - هسته مرکزی و مستقل از هر نوع فریم‌ورک خارجی.
-   - شامل موجودیت `Contact` به عنوان یک Aggregate Root غنی (Rich Domain Model).
-   - شامل Value Object اختصاصی `PhoneNumber` جهت اعمال مستقیم قوانین صحت‌سنجی در هسته سیستم.
-   - شامل اینترفیس مخزن داده (`IContactRepository`).
-
-2. **لایه اپلیکیشن (PhoneBook.Application):**
-   - وظیفه هماهنگی فرآیندها، اجرای Use Caseها و مدیریت تراکنش‌ها را بر عهده دارد.
-   - استفاده از **DTO** ها جهت کپسوله‌سازی و امنیت داده‌های خروجی و ورودی API.
-   - تعریف سرویس `ContactService` جهت تبدیل اشیای تجاری به داده‌های قابل نمایش.
-
-3. **لایه زیرساخت (PhoneBook.Infrastructure):**
-   - پیاده‌سازی عملیاتی لایه ذخیره‌سازی.
-   - استفاده از پیاده‌سازی درون‌حافظه‌ای (`InMemoryContactRepository`) با پشتیبانی از مکانیزم Thread-safe.
-
-4. **لایه وب (PhoneBook.Api):**
-   - طراحی اندپوینت‌ها بر اساس استانداردهای مدرن **RESTful API**.
-   - مجهز به مستندسازی خودکار و تعاملی با **Swagger**.
-   - استفاده از Global Exception Handling Middleware برای مدیریت تمیز خطاها.
+> برای توضیحات کامل معماری، تصمیم‌های طراحی، جزئیات Result Pattern، نگاشت خطاها و استراتژی تست‌ها، فایل  
+> **[`docs/CoverLetter.md`](docs/CoverLetter.md)** (یا نسخه PDF آن) را مطالعه کنید.
 
 ---
 
-##  تکنولوژی‌های استفاده شده
+## Architecture Overview
+
+پروژه از چهار لایه تشکیل شده است:
+
+- **PhoneBook.Domain**
+  - هسته دامنه و قوانین بیزینس (بدون وابستگی به API/DB)
+  - `Contact` به عنوان **Aggregate Root**
+  - `PhoneNumber` به عنوان **Value Object** (اعتبارسنجی در سطح دامنه)
+  - کدهای خطا: `DomainErrorCode`
+
+- **PhoneBook.Application**
+  - Use Caseها و سرویس‌های برنامه (Orchestration)
+  - DTOها برای ورودی/خروجی
+  - **Result / Result<T>** برای خروجی قابل پیش‌بینی و بدون Exception به‌عنوان Flow Control
+  - منبع پیام‌های فارسی: `ErrorMessages` (متمرکز)
+
+- **PhoneBook.Infrastructure**
+  - پیاده‌سازی Repository
+  - In-Memory storage با ساختار Thread-safe (مثلاً `ConcurrentDictionary`)
+
+- **PhoneBook.Api**
+  - REST API + Swagger
+  - کنترلرهای Thin
+  - **ResultFilter** برای تبدیل خودکار `Result` به HTTP response استاندارد
+
+---
+
+## Key Features
+
+- Result Pattern (`Result`, `Result<T>`) برای یکپارچگی خروجی‌ها
+- Centralized Persian error messages (`ErrorMessages`)
+- Thin Controllers + Global `ResultFilter`
+- Unit Tests با `xUnit` و `FluentAssertions`
+- Swagger/OpenAPI برای تست تعاملی API
+
+---
+
+## Tech Stack
+
 - .NET 8 / 9
-- xUnit (برای تست واحد)
-- Moq (برای شبیه‌سازی وابستگی‌ها)
-- FluentAssertions (برای نوشتن تست‌های خوانا)
-- Swagger / OpenAPI (برای مستندسازی API)
+- xUnit, FluentAssertions (Tests)
+- Swagger / OpenAPI
+- (Optional) Moq در صورت نیاز به Mock
 
 ---
 
-##  راهنمای اجرا
+## Run & Test
 
-### پیش‌نیازها
-- نصب [.NET SDK](https://dotnet.microsoft.com/download)
+### Prerequisites
+- نصب .NET SDK
 
-### مستندات تکمیلی
-اطلاعات بیشتر و توضیحات مربوط به پیاده‌سازی و انگیزه انتخاب این معماری را می‌توانید در [کاور لتر پروژه](docs/CoverLetter.pdf) مطالعه فرمایید.
-
-### مراحل اجرا
-. پروژه را کلون یا دانلود کنید:
+### Run API
 ```bash
 git clone https://github.com/HNaeemaei8/Hasin-PhoneBook.git
 cd PhoneBook
