@@ -1,0 +1,38 @@
+﻿using PhoneBook.Api.Common;
+using PhoneBook.Api.Middleware;
+using PhoneBook.Application.Services;
+using PhoneBook.Domain.Repositories;
+using PhoneBook.Infrastructure.Persistence;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// اضافه کردن سرویس‌های کنترلر و فعال‌سازی سوگر
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "دفترچه تلفن ترابرنت (DDD سبک)", Version = "v1" });
+});
+
+builder.Services.AddSingleton<IContactRepository, InMemoryContactRepository>();
+
+builder.Services.AddScoped<IContactService, ContactService>();
+
+var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ResultFilter>();
+});
+
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
+
+app.Run();
