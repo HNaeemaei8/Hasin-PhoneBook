@@ -18,6 +18,11 @@ builder.Services.AddSingleton<IContactRepository, InMemoryContactRepository>();
 
 builder.Services.AddScoped<IContactService, ContactService>();
 
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ResultFilter>();
+});
+
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -26,10 +31,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add<ResultFilter>();
-});
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
