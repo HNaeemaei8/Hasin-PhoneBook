@@ -16,32 +16,37 @@ public class ContactsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateContactDto dto)
+    public IActionResult Create(CreateContactDto dto)
     {
-        return Ok(await _contactService.CreateContactAsync(dto));
+        var result = _contactService.CreateContact(dto);
+        return Ok(result);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, UpdateContactDto dto)
+    public IActionResult Update(Guid id, UpdateContactDto dto)
     {
-        return Ok(await _contactService.UpdateContactAsync(id, dto));
+        var result = _contactService.UpdateContact(id, dto);
+        return Ok(result);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public IActionResult Delete(Guid id)
     {
-        return Ok(await _contactService.DeleteContactAsync(id));
+        var result = _contactService.DeleteContact(id);
+        return Ok(result);
     }
 
     [HttpGet("tags/{tag}")]
-    public async Task<IActionResult> GetByTag(string tag)
+    public IActionResult GetByTag(string tag)
     {
-        return Ok(await _contactService.GetContactsByTagAsync(tag));
+        var result = _contactService.GetContactsByTag(tag);
+        return Ok(result);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public IActionResult GetAll()
     {
-        return Ok(await _contactService.GetAllContactsAsync());
+        var result = _contactService.GetAllContacts();
+        return Ok(result);
     }
 }

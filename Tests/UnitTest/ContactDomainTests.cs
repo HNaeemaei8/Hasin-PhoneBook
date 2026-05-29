@@ -1,14 +1,15 @@
 ﻿using FluentAssertions;
 using PhoneBook.Domain.Entities;
+using PhoneBook.Domain.Errors;
 using PhoneBook.Domain.ValueObjects;
 using Xunit;
 
 namespace PhoneBook.Tests.Domain;
 
-public class ContactTests
+public class ContactDomainTests
 {
     [Fact]
-    public void Constructor_WithValidData_ShouldCreateContactCorrectly()
+    public void Create_WithValidData_ShouldCreateContactCorrectly()
     {
         // Arrange
         var firstName = "امیرحسین";
@@ -34,14 +35,9 @@ public class ContactTests
     [Fact]
     public void Update_WithNewData_ShouldModifyContactProperties()
     {
-        // Arrange
-        var phoneNumberResult = PhoneNumber.Create("09121234567");
-        phoneNumberResult.IsSuccess.Should().BeTrue();
-
-        var createResult = Contact.Create("علی", "رضایی", phoneNumberResult.Value, "قدیمی");
-        createResult.IsSuccess.Should().BeTrue();
-
-        var contact = createResult.Value;
+        //  ARRANGE 
+        var phoneResult = PhoneNumber.Create("09121234567");
+        var contact = Contact.Create("علی", "رضایی", phoneResult.Value, "قدیمی").Value;
 
         var newFirstName = "علیرضا";
         var newLastName = "احمدی";
@@ -50,26 +46,27 @@ public class ContactTests
 
         newPhoneResult.IsSuccess.Should().BeTrue();
 
-        // Act
+        // ACT 
         contact.Update(newFirstName, newLastName, newPhoneResult.Value, newTag);
 
-        // Assert
+        // ASSERT 
         contact.FirstName.Should().Be(newFirstName);
         contact.LastName.Should().Be(newLastName);
         contact.PhoneNumber.Value.Should().Be("09301112233");
         contact.Tag.Should().Be(newTag);
     }
-
     [Fact]
-    public void PhoneNumber_CreateWithInvalidFormat_ShouldReturnFailureResult()
+    public void Create_WithEmptyFirstName_ShouldReturnFailure()
     {
         // Arrange
-        var invalidPhone = "123";
+        var phone = PhoneNumber.Create("09121234567").Value;
 
         // Act
-        var result = PhoneNumber.Create(invalidPhone);
+        var result = Contact.Create("", "رضایی", phone, "دوست");
 
         // Assert
         result.IsFailure.Should().BeTrue();
+        result.ErrorCode.Should().Be(DomainErrorCode.NameIsRequired);
     }
+
 }

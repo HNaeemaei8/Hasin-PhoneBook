@@ -25,8 +25,8 @@ namespace PhoneBook.Tests.Infrastructure;
         var contact = createResult.Value;
 
         // Act
-        await repository.AddAsync(contact);
-        var result = await repository.GetByIdAsync(contact.Id);
+         repository.Add(contact);
+        var result =  repository.GetById(contact.Id);
 
         // Assert
         result.Should().NotBeNull();

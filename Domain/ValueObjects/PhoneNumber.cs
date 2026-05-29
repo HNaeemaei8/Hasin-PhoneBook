@@ -1,5 +1,6 @@
 ﻿using PhoneBook.Domain.Common;
 using PhoneBook.Domain.Errors;
+using System.Text.RegularExpressions;
 
 namespace PhoneBook.Domain.ValueObjects;
 
@@ -15,6 +16,12 @@ public class PhoneNumber
     public static Result<PhoneNumber> Create(string number)
     {
         if (string.IsNullOrWhiteSpace(number) || number.Length < 10)
+        {
+            return Result<PhoneNumber>.Failure(DomainErrorCode.InvalidPhoneNumber);
+        }
+        var phoneRegex = new Regex(@"^(\+98|0)?9\d{9}$");
+
+        if (!phoneRegex.IsMatch(number))
         {
             return Result<PhoneNumber>.Failure(DomainErrorCode.InvalidPhoneNumber);
         }

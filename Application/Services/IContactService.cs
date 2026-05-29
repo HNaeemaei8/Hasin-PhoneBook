@@ -5,9 +5,9 @@ namespace PhoneBook.Application.Services;
 
 public interface IContactService
 {
-    Task<Result<ContactDto>> CreateContactAsync(CreateContactDto dto);
-    Task<Result> UpdateContactAsync(Guid id, UpdateContactDto dto);
-    Task<Result> DeleteContactAsync(Guid id);
-    Task<Result<IEnumerable<ContactDto>>> GetContactsByTagAsync(string tag);
-    Task<Result<IEnumerable<ContactDto>>> GetAllContactsAsync();
+    Result<ContactDto> CreateContact(CreateContactDto dto);
+    Result UpdateContact(Guid id, UpdateContactDto dto);
+    Result DeleteContact(Guid id);
+    Result<IEnumerable<ContactDto>> GetContactsByTag(string tag);
+    Result<IEnumerable<ContactDto>> GetAllContacts();
 }

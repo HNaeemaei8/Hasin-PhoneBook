@@ -9,63 +9,62 @@ public class InMemoryContactRepository : IContactRepository
     private readonly List<Contact> _contacts = new();
     private readonly object _lock = new();
 
-    public Task AddAsync(Contact contact)
-    {
-        lock (_lock)
+        public void Add(Contact contact)
         {
-            _contacts.Add(contact);
-        }
-        return Task.CompletedTask;
-    }
-
-    public Task UpdateAsync(Contact contact)
-    {
-        lock (_lock)
-        {
-            var existing = _contacts.FirstOrDefault(c => c.Id == contact.Id);
-            if (existing != null)
+            lock (_lock)
             {
-                _contacts.Remove(existing);
                 _contacts.Add(contact);
             }
         }
-        return Task.CompletedTask;
+
+        public void Update(Contact contact)
+        {
+            lock (_lock)
+            {
+                var index = _contacts.FindIndex(c => c.Id == contact.Id);
+                if (index != -1)
+                {
+                    _contacts[index] = contact;
+                }
+            }
+        }
+
+        public void Delete(Guid id)
+        {
+            lock (_lock)
+            {
+                var contact = _contacts.FirstOrDefault(c => c.Id == id);
+                if (contact is not null)
+                {
+                    _contacts.Remove(contact);
+                }
+            }
+        }
+
+        public Contact? GetById(Guid id)
+        {
+            lock (_lock)
+            {
+                return _contacts.FirstOrDefault(c => c.Id == id);
+            }
+        }
+
+        public IEnumerable<Contact> GetByTag(string tag)
+        {
+            lock (_lock)
+            {
+                return _contacts
+                    .Where(c => c.Tag.Equals(tag, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+        }
+
+        public IReadOnlyList<Contact> GetAll()
+        {
+            lock (_lock)
+            {
+                return _contacts.ToList();
+            }
+        }
     }
 
-    public Task DeleteAsync(Guid id)
-    {
-        lock (_lock)
-        {
-            _contacts.RemoveAll(c => c.Id == id);
-        }
-        return Task.CompletedTask;
-    }
-
-    public Task<Contact?> GetByIdAsync(Guid id)
-    {
-        lock (_lock)
-        {
-            var contact = _contacts.FirstOrDefault(c => c.Id == id);
-            return Task.FromResult(contact);
-        }
-    }
-
-    public Task<IEnumerable<Contact>> GetByTagAsync(string tag)
-    {
-        lock (_lock)
-        {
-            var results = _contacts
-                .Where(c => c.Tag.Equals(tag, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-            return Task.FromResult<IEnumerable<Contact>>(results);
-        }
-    }
-
-    public Task<IEnumerable<Contact>> GetAllAsync()
-    {
-        lock (_lock)
-        {
-            return Task.FromResult<IEnumerable<Contact>>(_contacts.ToList());
-        }
-    }
-}
