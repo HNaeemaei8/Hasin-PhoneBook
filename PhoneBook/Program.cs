@@ -6,7 +6,6 @@ using PhoneBook.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// اضافه کردن سرویس‌های کنترلر و فعال‌سازی سوگر
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

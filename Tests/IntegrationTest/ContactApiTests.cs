@@ -22,7 +22,6 @@ public class ContactApiTests : IClassFixture<WebApplicationFactory<Program>>
     public async Task CreateContact_WithValidData_ShouldReturnCreatedStatusCode()
     {
         // Arrange
-        // اصلاح بر اساس ساختار DTO شما
         var payload = new CreateContactDto
         (
             FirstName: "تست",

@@ -18,14 +18,12 @@ public class ContactsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateContactDto dto)
     {
-        // ما کل Result را برمی‌گردانیم، Filter خودش Value را استخراج می‌کند
         return Ok(await _contactService.CreateContactAsync(dto));
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, UpdateContactDto dto)
     {
-        // نتیجه (موفقیت یا شکست) توسط Filter مدیریت می‌شود
         return Ok(await _contactService.UpdateContactAsync(id, dto));
     }
 

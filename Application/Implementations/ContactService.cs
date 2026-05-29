@@ -22,7 +22,11 @@ public class ContactService : IContactService
         if (phoneResult.IsFailure)
             return Result<ContactDto>.Failure(phoneResult.ErrorCode);
 
-        var contact = new Contact(dto.FirstName, dto.LastName, phoneResult.Value, dto.Tag);
+        var contactResult = Contact.Create(dto.FirstName, dto.LastName, phoneResult.Value, dto.Tag);
+        if (contactResult.IsFailure)
+            return Result<ContactDto>.Failure(contactResult.ErrorCode);
+
+        var contact = contactResult.Value;
 
         await _repository.AddAsync(contact);
 

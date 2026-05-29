@@ -17,18 +17,18 @@ public class ContactTests
         var phoneNumberResult = PhoneNumber.Create(phoneStr);
         var tag = "عمومی";
 
-        // Assert precondition
+        // Assert 
         phoneNumberResult.IsSuccess.Should().BeTrue();
 
-        // Act
-        var contact = new Contact(firstName, lastName, phoneNumberResult.Value, tag);
+        var result = Contact.Create(firstName, lastName, phoneNumberResult.Value, tag);
 
         // Assert
-        contact.Id.Should().NotBeEmpty();
-        contact.FirstName.Should().Be(firstName);
-        contact.LastName.Should().Be(lastName);
-        contact.PhoneNumber.Value.Should().Be(phoneStr);
-        contact.Tag.Should().Be(tag);
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Id.Should().NotBeEmpty();
+        result.Value.FirstName.Should().Be(firstName);
+        result.Value.LastName.Should().Be(lastName);
+        result.Value.PhoneNumber.Value.Should().Be(phoneStr);
+        result.Value.Tag.Should().Be(tag);
     }
 
     [Fact]
@@ -38,7 +38,10 @@ public class ContactTests
         var phoneNumberResult = PhoneNumber.Create("09121234567");
         phoneNumberResult.IsSuccess.Should().BeTrue();
 
-        var contact = new Contact("علی", "رضایی", phoneNumberResult.Value, "قدیمی");
+        var createResult = Contact.Create("علی", "رضایی", phoneNumberResult.Value, "قدیمی");
+        createResult.IsSuccess.Should().BeTrue();
+
+        var contact = createResult.Value;
 
         var newFirstName = "علیرضا";
         var newLastName = "احمدی";

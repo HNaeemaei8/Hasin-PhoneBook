@@ -58,13 +58,12 @@ public class ResultFilter : IAsyncResultFilter
 
     private IActionResult MapErrorToResponse(DomainErrorCode errorCode)
     {
-        var message = ErrorMessages.GetMessage(errorCode);
+        var message = errorCode.GetErrorMessage();
 
         return errorCode switch
         {
             DomainErrorCode.ContactNotFound => new NotFoundObjectResult(new { error = message }),
             DomainErrorCode.InvalidPhoneNumber => new BadRequestObjectResult(new { error = message }),
-
             _ => new BadRequestObjectResult(new { error = message })
         };
     }

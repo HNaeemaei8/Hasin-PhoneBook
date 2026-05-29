@@ -19,7 +19,10 @@ namespace PhoneBook.Tests.Infrastructure;
 
         phoneResult.IsSuccess.Should().BeTrue();
 
-        var contact = new Contact("نیما", "رضایی", phoneResult.Value, "عمومی");
+        var createResult = Contact.Create("نیما", "رضایی", phoneResult.Value, "عمومی");
+        createResult.IsSuccess.Should().BeTrue();
+
+        var contact = createResult.Value;
 
         // Act
         await repository.AddAsync(contact);
@@ -29,7 +32,6 @@ namespace PhoneBook.Tests.Infrastructure;
         result.Should().NotBeNull();
         result!.FirstName.Should().Be("نیما");
         result.LastName.Should().Be("رضایی");
-
         result.PhoneNumber.Value.Should().Be("09125555555");
     }
 }
