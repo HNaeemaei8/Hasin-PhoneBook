@@ -6,57 +6,46 @@ using PhoneBook.Application.Common;
 
 namespace PhoneBook.Api.Common;
 
-public class ResultFilter : IAsyncResultFilter
+public class ResultFilter : IAsyncActionFilter
 {
-    public async Task OnResultExecutionAsync(
-        ResultExecutingContext context,
-        ResultExecutionDelegate next)
+    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        if (context.Result is not ObjectResult objectResult)
-        {
-            await next();
-            return;
-        }
+        var executed = await next();
 
-        if (objectResult.Value is Result result)
-        {
-            context.Result = result.IsSuccess
-                ? new NoContentResult()
-                : MapErrorToResponse(result.ErrorCode);
-
+        if (executed.Exception != null || executed.Result is not ObjectResult objectResult)
             return;
-        }
 
         var value = objectResult.Value;
-        if (value == null)
-        {
-            await next();
-            return;
-        }
+        if (value is null) return;
 
         var type = value.GetType();
-        if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(Result<>))
+
+        // Result<T>
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Result<>))
         {
-            await next();
+            var isSuccess = (bool)type.GetProperty(nameof(Result.IsSuccess))!.GetValue(value)!;
+
+            if (!isSuccess)
+            {
+                var errorCode = (DomainErrorCode)type.GetProperty(nameof(Result.ErrorCode))!.GetValue(value)!;
+                executed.Result = MapErrorToResponse(errorCode);
+                return;
+            }
+
+            var rawValue = type.GetProperty(nameof(Result<object>.Value))!.GetValue(value);
+            executed.Result = new OkObjectResult(rawValue);
             return;
         }
 
-        var isSuccess = (bool)type.GetProperty(nameof(Result.IsSuccess))!.GetValue(value)!;
-
-        if (!isSuccess)
+        if (value is Result result)
         {
-            var errorCode =
-                (DomainErrorCode)type.GetProperty(nameof(Result.ErrorCode))!.GetValue(value)!;
-
-            context.Result = MapErrorToResponse(errorCode);
-            return;
+            executed.Result = result.IsSuccess
+                ? new NoContentResult()
+                : MapErrorToResponse(result.ErrorCode);
         }
-
-        var rawValue = type.GetProperty(nameof(Result<object>.Value))!.GetValue(value);
-        context.Result = new OkObjectResult(rawValue);
     }
 
-    private IActionResult MapErrorToResponse(DomainErrorCode errorCode)
+    private static IActionResult MapErrorToResponse(DomainErrorCode errorCode)
     {
         var message = errorCode.GetErrorMessage();
 
